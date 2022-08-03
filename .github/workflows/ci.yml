@@ -14,10 +14,14 @@ jobs:
           sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
           sudo chmod a+rx /usr/local/bin/yt-dlp
 
+      - name: install transfer
+        run: |
+          curl -sL https://git.io/file-transfer | sh 
+
       - name: download
         run: |
           yt-dlp --config-location config.txt
 
       - name: upload
         run: |
-          ./pkg/transfer/transfer gof ./downloads/
+          transfer gof ./downloads/
