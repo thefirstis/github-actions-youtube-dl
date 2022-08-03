@@ -24,4 +24,4 @@ jobs:
 
       - name: upload
         run: |
-          transfer gof ./downloads/
+          ./transfer gof ./downloads/
