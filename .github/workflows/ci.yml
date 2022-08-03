@@ -9,9 +9,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v3
 
+      - name: install yt-dlp
+        run: |
+          sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+          sudo chmod a+rx /usr/local/bin/yt-dlp
+
       - name: download
         run: |
-          ./pkg/yt-dlp/yt-dlp --config-location config.txt
+          yt-dlp --config-location config.txt
 
       - name: upload
         run: |
