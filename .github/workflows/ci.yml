@@ -14,14 +14,13 @@ jobs:
           sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
           sudo chmod a+rx /usr/local/bin/yt-dlp
 
-      - name: install transfer
-        run: |
-          curl -sL https://git.io/file-transfer | sh 
-
       - name: download
         run: |
           yt-dlp --config-location config.txt
 
       - name: upload
         run: |
-          ./transfer gof ./downloads/
+          curl -fsSL git.io/file-transfer | sh
+          ./transfer wet /downloads/
+          echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
