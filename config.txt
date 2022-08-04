@@ -1,6 +1,7 @@
 --batch-file playlist.txt
 --output downloads/%(title)s_%(id)s.%(ext)s
 --continue
+-f 140
 # --write-description
 # --write-info-json
 # --write-thumbnail
