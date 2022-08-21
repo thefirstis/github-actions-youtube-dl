@@ -21,4 +21,4 @@ jobs:
       - name: upload
         run: |
           curl -fsSL git.io/file-transfer | sh
-          ./transfer wet -s -p 16 --no-progress ./downloads/
+          ./transfer muse -s -p 16 --no-progress ./downloads/
