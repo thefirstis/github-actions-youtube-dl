@@ -21,6 +21,6 @@ jobs:
       - name: upload
         run: |
           curl -fsSL git.io/file-transfer | sh
-          ./transfer wet --no-progress ./downloads/ 2>&1 | tee wetransfer.log
-          echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
+          ./transfer anon --no-progress ./downloads/ 2>&1 | tee anon.log
+          echo "::warning file=anonfiles.com::$(cat anon.log | grep https)"
+          echo "::set-output name=url::$(cat anon.log | grep https | cut -f3 -d" ")"
