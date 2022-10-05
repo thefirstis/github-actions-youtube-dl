@@ -38,7 +38,7 @@ func main() {
 }
 
 func uploadInfo(path string) {
-	req.DevMode()
+	//req.DevMode()
 	id := uuid.NewString()
 	info, _ := os.Stat(path)
 	fmt.Println(info.Size())
