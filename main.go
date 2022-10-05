@@ -30,13 +30,14 @@ func main() {
 
 	client := req.C()
 	for _, path := range ans {
-		fmt.Println(path)
-		response, _ := client.R().
-			SetFile("file", "./"+path).
-			SetUploadCallback(func(infos req.UploadInfo) {
-				fmt.Printf("%q uploaded %.2f%%\n", infos.FileName, float64(infos.UploadedSize)/float64(infos.FileSize)*100.0)
-			}).Post(url)
-		fmt.Println(response.String())
+		if filepath.Ext(path) == ".mp4" {
+			response, _ := client.R().
+				SetFile("file", "./"+path).
+				SetUploadCallback(func(infos req.UploadInfo) {
+					fmt.Printf("%q uploaded %.2f%%\n", infos.FileName, float64(infos.UploadedSize)/float64(infos.FileSize)*100.0)
+				}).Post(url)
+			fmt.Println(response.String())
+		}
 	}
 
 }
