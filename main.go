@@ -31,7 +31,7 @@ func main() {
 	for _, path := range ans {
 		fmt.Println(path)
 		response, _ := client.R().
-			SetFile("file", path).
+			SetFile("file", "./"+path).
 			SetUploadCallback(func(infos req.UploadInfo) {
 				fmt.Printf("%q uploaded %.2f%%\n", infos.FileName, float64(infos.UploadedSize)/float64(infos.FileSize)*100.0)
 			}).Post(url)
