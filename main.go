@@ -18,8 +18,11 @@ func main() {
 	//获取文件夹中的待上传的文件名
 	ans := []string{""}
 	filepath.Walk("./downloads", func(path string, info fs.FileInfo, err error) error {
+		fmt.Println("path ====" + path)
 		if !info.IsDir() {
-			ans = append(ans, path)
+			if filepath.Ext(path) == ".mp4" {
+				ans = append(ans, path)
+			}
 		}
 		return nil
 	})
