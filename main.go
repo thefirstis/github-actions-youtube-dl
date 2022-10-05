@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	url := "https://tunnel.acgh.top/upload"
+	url := "https://frp.acgh.top/upload"
 	//DownloadYouTube(url)
 	//UploadMusic("gof")
 
