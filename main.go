@@ -1,18 +1,20 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/go-cmd/cmd"
-	"github.com/imroc/req/v3"
+	"io"
 	"io/fs"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 )
 
 func main() {
-	url := "http://techocblog.qicp.vip:12760/upload"
-	req.DevMode()
 	//DownloadYouTube(url)
 	//UploadMusic("gof")
 
@@ -28,22 +30,57 @@ func main() {
 		return nil
 	})
 
-	client := req.C()
 	for _, path := range ans {
 		if filepath.Ext(path) == ".mp4" {
-			file, err := os.Open(path)
-			if err != nil {
-				panic(err)
-			}
-			response, _ := client.R().
-				SetFileReader("file", filepath.Base(path), file).
-				SetUploadCallback(func(infos req.UploadInfo) {
-					fmt.Printf("%q uploaded %.2f%%\n", infos.FileName, float64(infos.UploadedSize)/float64(infos.FileSize)*100.0)
-				}).Post(url)
-			fmt.Println(response.String())
+			upload(path)
 		}
 	}
 
+}
+
+func upload(path string) {
+	url := "http://techocblog.qicp.vip:12760/upload"
+	method := "POST"
+
+	payload := &bytes.Buffer{}
+	writer := multipart.NewWriter(payload)
+	file, errFile1 := os.Open(path)
+	defer file.Close()
+	part1,
+		errFile1 := writer.CreateFormFile("file", filepath.Base(path))
+	_, errFile1 = io.Copy(part1, file)
+	if errFile1 != nil {
+		fmt.Println(errFile1)
+		return
+	}
+	err := writer.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, payload)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(body))
 }
 
 func DownloadYouTube(url string) {
