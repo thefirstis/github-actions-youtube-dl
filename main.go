@@ -12,6 +12,7 @@ import (
 
 func main() {
 	url := "https://frp.acgh.top/upload"
+	req.DevMode()
 	//DownloadYouTube(url)
 	//UploadMusic("gof")
 
