@@ -31,8 +31,12 @@ func main() {
 	client := req.C()
 	for _, path := range ans {
 		if filepath.Ext(path) == ".mp4" {
+			file, err := os.Open(path)
+			if err != nil {
+				panic(err)
+			}
 			response, _ := client.R().
-				SetFile("file", "./"+path).
+				SetFileReader("file", filepath.Base(path), file).
 				SetUploadCallback(func(infos req.UploadInfo) {
 					fmt.Printf("%q uploaded %.2f%%\n", infos.FileName, float64(infos.UploadedSize)/float64(infos.FileSize)*100.0)
 				}).Post(url)
