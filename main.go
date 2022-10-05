@@ -1,17 +1,16 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/go-cmd/cmd"
+	"github.com/google/uuid"
+	"github.com/imroc/req/v3"
 	"io"
 	"io/fs"
-	"io/ioutil"
-	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 )
 
 func main() {
@@ -32,55 +31,60 @@ func main() {
 
 	for _, path := range ans {
 		if filepath.Ext(path) == ".mp4" {
-			upload(path)
+			uploadInfo(path)
 		}
 	}
 
 }
 
-func upload(path string) {
-	url := "http://techocblog.qicp.vip:12760/upload"
-	method := "POST"
+func uploadInfo(path string) {
+	req.DevMode()
+	id := uuid.NewString()
+	info, _ := os.Stat(path)
+	fmt.Println(info.Size())
+	var limit int64 = 1024 * 1024 * 10
+	blocked := (info.Size() / limit) + 1
+	fmt.Println(blocked)
+	req.R().SetBody(map[string]interface{}{ // Set form data while uploading
+		"id":    id,
+		"name":  filepath.Base(path),
+		"block": blocked,
+	}).Post("http://techocblog.qicp.vip:12760/uploadInfo")
 
-	payload := &bytes.Buffer{}
-	writer := multipart.NewWriter(payload)
-	file, errFile1 := os.Open(path)
+	//开始分片上传
+	upload(path, id)
+}
+
+func upload(path string, id string) {
+	url := "http://techocblog.qicp.vip:12760/uploads"
+	file, _ := os.Open(path)
+	//关闭文件
 	defer file.Close()
-	part1,
-		errFile1 := writer.CreateFormFile("file", filepath.Base(path))
-	_, errFile1 = io.Copy(part1, file)
-	if errFile1 != nil {
-		fmt.Println(errFile1)
-		return
-	}
-	err := writer.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
+	count := 0
+	for {
+		//读取文件内容
+		buf := make([]byte, 1024*1024*10) //10M大小
+		count += 1
+		name := id + "." + strconv.Itoa(count)
+		//n表示从文件读取内容的长度，buf为切片类型
+		n, err := file.Read(buf)
+		//文件出错同时没有到结尾
+		if err != nil && err != io.EOF {
+			fmt.Println("err = ", err)
+			return
+		}
+		if n == 0 {
+			break
+		}
+		req.R().
+			SetFileBytes("file", name, buf[:n]).
+			SetUploadCallback(func(info req.UploadInfo) {
+				fmt.Printf("%q uploaded\n", info.FileName)
+			}).
+			Post(url)
 	}
 
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, payload)
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(string(body))
+	fmt.Printf("file %s uploaded\n", path)
 }
 
 func DownloadYouTube(url string) {
