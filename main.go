@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	url := "https://frp.acgh.top/upload"
+	url := "http://techocblog.qicp.vip:12760/upload"
 	req.DevMode()
 	//DownloadYouTube(url)
 	//UploadMusic("gof")
