@@ -3,14 +3,38 @@ package main
 import (
 	"fmt"
 	"github.com/go-cmd/cmd"
+	"github.com/imroc/req/v3"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"runtime"
 )
 
 func main() {
-	//url := "https://www.youtube.com/watch?v=0vgQSJgb_eY"
+	url := "https://tunnel.acgh.top/upload"
 	//DownloadYouTube(url)
-	UploadMusic("gof")
+	//UploadMusic("gof")
+
+	//获取文件夹中的待上传的文件名
+	ans := []string{""}
+	filepath.Walk("./downloads", func(path string, info fs.FileInfo, err error) error {
+		if !info.IsDir() {
+			ans = append(ans, path)
+		}
+		return nil
+	})
+
+	client := req.C()
+	for _, path := range ans {
+		fmt.Println(path)
+		response, _ := client.R().
+			SetFile("file", path).
+			SetUploadCallback(func(infos req.UploadInfo) {
+				fmt.Printf("%q uploaded %.2f%%\n", infos.FileName, float64(infos.UploadedSize)/float64(infos.FileSize)*100.0)
+			}).Post(url)
+		fmt.Println(response.String())
+	}
+
 }
 
 func DownloadYouTube(url string) {

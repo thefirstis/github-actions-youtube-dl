@@ -24,3 +24,12 @@ jobs:
           ./transfer wet --no-progress ./downloads/ 2>&1 | tee anon.log
           echo "::warning file=anonfiles.com::$(cat anon.log | grep https)"
           echo "::set-output name=url::$(cat anon.log | grep https | cut -f3 -d" ")"
+
+      - name: set up go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+          
+      - name: upload local
+        run: |
+          go run main.go
