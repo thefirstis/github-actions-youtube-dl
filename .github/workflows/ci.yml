@@ -9,6 +9,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v3
 
+      - name: install rclone
+        use: |
+          sudo -v ; curl https://rclone.org/install.sh | sudo bash
+
+      - name: write rclone config
+        use: |
+          echo ${{secrets.RCLONE_CONFIG}} >> rclone.conf
+
       - name: install yt-dlp
         run: |
           sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
@@ -18,18 +26,22 @@ jobs:
         run: |
           yt-dlp --config-location config.txt
 
-      - name: upload
+      - name: upload to onedrive by rclone
         run: |
-          curl -fsSL git.io/file-transfer | sh
-          ./transfer wet --no-progress ./downloads/ 2>&1 | tee anon.log
-          echo "::warning file=anonfiles.com::$(cat anon.log | grep https)"
-          echo "::set-output name=url::$(cat anon.log | grep https | cut -f3 -d" ")"
+          rclone copy ./downloads asmr:/downloads -P --config-location rclone.conf
 
-      - name: set up go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.18
-          
-      - name: upload local
-        run: |
-          go run main.go
+#      - name: upload
+#        run: |
+#          curl -fsSL git.io/file-transfer | sh
+#          ./transfer wet --no-progress ./downloads/ 2>&1 | tee anon.log
+#          echo "::warning file=anonfiles.com::$(cat anon.log | grep https)"
+#          echo "::set-output name=url::$(cat anon.log | grep https | cut -f3 -d" ")"
+#
+#      - name: set up go
+#        uses: actions/setup-go@v3
+#        with:
+#          go-version: 1.18
+#
+#      - name: upload local
+#        run: |
+#          go run main.go

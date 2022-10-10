@@ -7,6 +7,7 @@ import (
 	"github.com/imroc/req/v3"
 	"io"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -63,7 +64,7 @@ func upload(path string, id string) {
 	count := 0
 	for {
 		//读取文件内容
-		buf := make([]byte, 1024*1024*10) //10M大小
+		buf := make([]byte, 1024*1024*50) //50M大小
 		count += 1
 		name := id + "." + strconv.Itoa(count)
 		//n表示从文件读取内容的长度，buf为切片类型
@@ -76,12 +77,15 @@ func upload(path string, id string) {
 		if n == 0 {
 			break
 		}
-		req.R().
+		_, err = req.R().
 			SetFileBytes("file", name, buf[:n]).
 			SetUploadCallback(func(info req.UploadInfo) {
 				fmt.Printf("%q uploaded\n", info.FileName)
 			}).
 			Post(url)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	fmt.Printf("file %s uploaded\n", path)
