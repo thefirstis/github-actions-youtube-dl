@@ -10,11 +10,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: install rclone
-        use: |
+        run: |
           sudo -v ; curl https://rclone.org/install.sh | sudo bash
 
       - name: write rclone config
-        use: |
+        run: |
           echo ${{secrets.RCLONE_CONFIG}} >> rclone.conf
 
       - name: install yt-dlp
