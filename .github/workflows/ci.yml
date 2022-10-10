@@ -15,7 +15,8 @@ jobs:
 
       - name: write rclone config
         run: |
-          cat << EOF > rclone.conf
+          mkdir -p ~/.config/rclone/
+          cat << EOF > ~/.config/rclone/rclone.conf
           ${{secrets.RCLONE_CONFIG}} 
           EOF
       - name: install yt-dlp
@@ -29,7 +30,7 @@ jobs:
 
       - name: upload to onedrive by rclone
         run: |
-          rclone copy ./downloads asmr:/downloads -P --config-location rclone.conf
+          rclone copy ./downloads asmr:/downloads -P
 
 #      - name: upload
 #        run: |
