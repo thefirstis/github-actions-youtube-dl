@@ -15,8 +15,9 @@ jobs:
 
       - name: write rclone config
         run: |
-          echo ${{secrets.RCLONE_CONFIG}} >> rclone.conf
-
+          cat << EOF > rclone.conf
+          ${{secrets.RCLONE_CONFIG}} 
+          EOF
       - name: install yt-dlp
         run: |
           sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
