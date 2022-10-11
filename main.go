@@ -15,9 +15,49 @@ import (
 )
 
 func main() {
-	//DownloadYouTube(url)
-	//UploadMusic("gof")
+	var envCmd *cmd.Cmd
+	// Disable output buffering, enable streaming
+	cmdOptions := cmd.Options{
+		Buffered:  false,
+		Streaming: true,
+	}
 
+	url := "https://www.youtube.com/watch?v=QShgeoF9VIQ"
+	//cmd := exec.Command("yt-dlp", url, "--proxy", "http://127.0.0.1:7890", "--output", "downloads/%(id)s.%(ext)s")
+	envCmd = cmd.NewCmdOptions(cmdOptions, "yt-dlp", url, "--output", "downloads/%(id)s.%(ext)s", "--proxy", "http://127.0.0.1:7890", "--external-downloader", "aria2c")
+
+	// Print STDOUT and STDERR lines streaming from Cmd
+	doneChan := make(chan struct{})
+	go func() {
+		defer close(doneChan)
+		// Done when both channels have been closed
+		// https://dave.cheney.net/2013/04/30/curious-channels
+		for envCmd.Stdout != nil || envCmd.Stderr != nil {
+			select {
+			case line, open := <-envCmd.Stdout:
+				if !open {
+					envCmd.Stdout = nil
+					continue
+				}
+				fmt.Println(line)
+			case line, open := <-envCmd.Stderr:
+				if !open {
+					envCmd.Stderr = nil
+					continue
+				}
+				fmt.Fprintln(os.Stderr, line)
+			}
+		}
+	}()
+
+	// Run and wait for Cmd to return, discard Status
+	<-envCmd.Start()
+
+	// Wait for goroutine to print everything
+	<-doneChan
+}
+
+func fileDownloader() {
 	//获取文件夹中的待上传的文件名
 	ans := []string{""}
 	filepath.Walk("./downloads", func(path string, info fs.FileInfo, err error) error {
@@ -35,7 +75,6 @@ func main() {
 			uploadInfo(path)
 		}
 	}
-
 }
 
 func uploadInfo(path string) {
