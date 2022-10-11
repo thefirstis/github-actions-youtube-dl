@@ -26,7 +26,7 @@ jobs:
 
       - name: install aria2
         run: |
-          apt install aria2
+          sudo apt-get install aria2
          
 
       - name: download
