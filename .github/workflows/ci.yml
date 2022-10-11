@@ -27,8 +27,12 @@ jobs:
       - name: install aria2
         run: |
           sudo apt-get install aria2
-         
 
+      - name: write youtube cookies
+        run: |
+          cat << EOF > cookies.txt
+          ${{secrets.YOUTUBE_COOKIES}} 
+          EOF
       - name: download
         run: |
           yt-dlp --config-location config.txt
